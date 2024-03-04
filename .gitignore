@@ -1,0 +1,95 @@
+# Visual Studio files
+.vs/
+*.suo
+*.user
+*.sln.docstates
+
+# ReSharper files
+_ReSharper*/
+*.ReSharper*
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# NuGet Packages
+*.nupkg
+*.paket.*
+paket-files/
+
+# User-specific files
+*.userprefs
+*.usertasks
+
+# Build results
+*.dll
+*.exe
+*.pdb
+*.log
+*.config
+
+# Visual Studio Code directories
+.vscode/
+
+# Rider files
+.idea/
+*.sln.iml
+
+# Resharper
+_ReSharper*/
+*.ReSharper*/
+
+# Package Files #
+*.nupkg
+*.paket.*
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# VS Code settings
+.vscode/
+/////////////////////////////////////////////////////////////////////////
+AppData/
+
+/////////////////////////////////////////////////////////////////////////
+# WPF
+*.obj
+*.exe
+*.pdb
+*.user
+*.aps
+*.pch
+*.vspscc
+*.vssscc
+*.ncb
+*.suo
+*.tlb
+*.tlh
+*.bak
+*.cache
+*.ilk
+*.log
+*.lib
+*.sbr
+*.sdf
+*.pyc
+*.xml
+*.docstates
+*.tmp
+*.DS_Store
+*.dat
+*.orig
