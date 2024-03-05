@@ -37,16 +37,21 @@
         </TabItem>
         <TabItem Header="Ref Book">
             <Grid>
-                <DataGrid x:Name="RefBookGrid" Margin="10" AutoGenerateColumns="False" ItemsSource="{Binding Items}">
+                <DataGrid x:Name="RefBookGrid" Margin="10" AutoGenerateColumns="False" SelectionMode="Extended" ItemsSource="{Binding Items}">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Id" Binding="{Binding Id}" />
+                        <DataGridTextColumn Header="Id" Binding="{Binding Id}" IsReadOnly="True"/>
                         <DataGridTextColumn Header="Name" Binding="{Binding Name}" />
                         <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}" />
                         <DataGridCheckBoxColumn Header="IsAcceptance" Binding="{Binding IsAcceptance}" />
                     </DataGrid.Columns>
+                    <!--<DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <EventSetter Event="Loaded" Handler="DataGridRow_Loaded" />
+                        </Style>
+                    </DataGrid.RowStyle>-->
                 </DataGrid>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,10">
-                    <Button Content="Добавить запись" Click="AddRecord_Click" Margin="5" />
+                    <Button Content="Сохранить" Click="EditRecords_Click" Margin="5" />
                     <Button Content="Удалить выбранные записи" Click="DeleteSelectedRecords_Click" Margin="5" />
                 </StackPanel>
             </Grid>

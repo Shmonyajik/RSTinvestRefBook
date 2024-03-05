@@ -16,6 +16,12 @@ namespace RSTinvestRefBook.Models
             get { return id; }
             set { id = value; OnPropertyChanged(nameof(Id)); }
         }
+        private string hexId;
+        public string HexId
+        {
+            get { return hexId; }
+            set { hexId = value; OnPropertyChanged(nameof(Id)); }
+        }
 
         private string name;
         public string Name
@@ -24,12 +30,6 @@ namespace RSTinvestRefBook.Models
             set { name = value; OnPropertyChanged(nameof(Name)); }
         }
 
-        private int quantity;
-        public int Quantity
-        {
-            get { return quantity; }
-            set { quantity = value; OnPropertyChanged(nameof(Quantity)); }
-        }
 
         private bool isAcceptance;
         public bool IsAcceptance

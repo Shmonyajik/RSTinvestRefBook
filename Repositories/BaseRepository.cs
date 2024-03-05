@@ -11,6 +11,8 @@ namespace RSTinvestRefBook.Repositories
     {
         Task<T> GetByIdAsync(string id);
         Task<IEnumerable<T>> GetAllAsync();
+
+        Task EditAsync(List<T> entitys);
         Task CreateMultipleAsync(List<T> entitys);
         void Create(T entity);
 

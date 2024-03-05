@@ -40,6 +40,22 @@ namespace RSTinvestRefBook.Repositories
             }
 
         }
+
+        public async Task EditAsync(List<Position> positions)
+        {
+            using (var writer = new StreamWriter(FilePath, append: false))
+            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                csv.WriteHeader<Position>();
+                csv.NextRecord();
+                await csv.WriteRecordsAsync(positions);
+            }
+        }
+/// <summary>
+/// ////////////////////////////////////////////
+/// </summary>
+/// <param name="positions"></param>
+/// <returns></returns>
         public async Task CreateMultipleAsync(List<Position> positions)
         {
             using (var writer = new StreamWriter(FilePath, append: true))

@@ -2,10 +2,12 @@
 using RSTinvestRefBook.Repositories;
 using RSTinvestRefBook.Services;
 using RSTinvestRefBook.ViewModels;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace RSTinvestRefBook
 {
@@ -26,13 +28,37 @@ namespace RSTinvestRefBook
             InitializeComponent();
         }
 
-        private void AddRecord_Click(object sender, RoutedEventArgs e)
+        private async void EditRecords_Click(object sender, RoutedEventArgs e)
         {
-            
+            var positions = new List<Position>(_positionVM.Items);
+            var response = await _refBookService.EditPositionsList(positions);
+            if(response.StatusCode!=Enums.StatusCode.OK)
+            {
+                MessageBox.Show(response.Description);
+                
+            }
+            else
+            {
+                MessageBox.Show("Успешно сохранено");
+            }
         }
 
         private void DeleteSelectedRecords_Click(object sender, RoutedEventArgs e)
         {
+            DataGrid dataGrid = MainTabControl.FindName("RefBookGrid") as DataGrid;
+
+           var selectedItems = dataGrid.SelectedItems;
+            var itemsToDelete = new List<Position>();
+
+            foreach (var selectedItem in selectedItems)
+            {
+                itemsToDelete.Add(selectedItem as Position);
+            }
+
+            foreach (var itemToDelete in itemsToDelete)
+            {
+                _positionVM.Items.Remove(itemToDelete);
+            }
 
         }
 
@@ -52,5 +78,7 @@ namespace RSTinvestRefBook
             DataGrid refBookTable = MainTabControl.FindName("RefBookGrid") as DataGrid;
             refBookTable.DataContext = _positionVM;
         }
+
+        
     }
 }

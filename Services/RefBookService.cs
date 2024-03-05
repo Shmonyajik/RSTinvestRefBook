@@ -116,9 +116,62 @@ namespace RSTinvestRefBook.Services
             return response;
         }
 
+        public async Task<BaseResponse<bool>> EditPositionsList(List<Position> positions)
+        {
+            var response = new BaseResponse<bool>();
+            try
+            {
+                StringBuilder validationErrors = new StringBuilder();
+                for (int i = 0; i < positions.Count; i++)
+                {
+                    if (string.IsNullOrEmpty(positions[i].Name))
+                    {
+                        response.StatusCode = Enums.StatusCode.ValidationError;
+                        validationErrors.AppendLine($"Строка {i + 1}: Имя позиции не может быть пустым.");
+                    }
+                    if (positions[i].Quantity < 1)
+                    {
+                        response.StatusCode = Enums.StatusCode.ValidationError;
+                        validationErrors.AppendLine($"Строка {i + 1}: Количество должно быть больше нуля.");
+                    }
+                    if (string.IsNullOrEmpty(positions[i].Id) && response.StatusCode!= Enums.StatusCode.ValidationError)
+                    {
+                        positions[i].Id = GenerateHexId();
+                    }
+                }
+                if(validationErrors.Length > 0)
+                {
+                    response.Description = validationErrors.ToString();
+                    return response;
+                }
+
+                await _positionRepository.EditAsync(positions);
+                response.StatusCode = Enums.StatusCode.OK;
+                
+                
+            }
+            catch (IOException ex)
+            {
+                response.Description = "Произошла ошибка ввода/вывода: " + ex.Message;
+                response.StatusCode = Enums.StatusCode.NotFound;
+            }
+            catch (CsvHelperException ex)
+            {
+                response.Description = "Произошла ошибка при работе с CSV: " + ex.Message;
+                response.StatusCode = Enums.StatusCode.NotFound;
+            }
+            catch (Exception ex)
+            {
+                response.Description = ex.Message;
+                response.StatusCode = Enums.StatusCode.InternalServerError;
+            }
+            return response;
+        }
+
+
         private string GenerateHexId()
         {
-            int.TryParse(ConfigurationManager.AppSettings.Get("HexIdLenght"), out int length);
+            int.TryParse(ConfigurationManager.AppSettings.Get("HexIdLength"), out int length);
             // Генерируем случайные байты
             byte[] buffer = new byte[length / 2];
             new Random().NextBytes(buffer);

@@ -12,5 +12,6 @@ namespace RSTinvestRefBook.Services
     {
         Task<BaseResponse<Position>> GetPosition(string id);
         Task<BaseResponse<IEnumerable<Position>>> GetAllPositions();
+        Task<BaseResponse<bool>> EditPositionsList(List<Position> positions);
     }
 }
