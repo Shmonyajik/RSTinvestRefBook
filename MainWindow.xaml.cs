@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -72,7 +73,34 @@ namespace RSTinvestRefBook
         }
 
         private async void Window_Loaded(object sender, RoutedEventArgs e)
-        {   
+        {
+            var regexPattern = ConfigurationManager.AppSettings["HexIdRegexPattern"];
+            var filePath = ConfigurationManager.AppSettings["RefBookFilePath"];
+            if (string.IsNullOrEmpty(regexPattern))
+            {
+                throw new ConfigurationErrorsException("HexIdRegexPattern не найден в файле конфигурации.");
+            }
+            if (string.IsNullOrEmpty(filePath))
+            {
+                throw new ConfigurationErrorsException("RefBookFilePath не найден в файле конфигурации.");
+            }
+            if (!File.Exists(filePath))
+            {
+                MessageBoxResult result = MessageBox.Show("Файл справочника не найден. Создать новый файл?", "RefBook.csv", MessageBoxButton.YesNo);
+                if (result == MessageBoxResult.Yes)
+                {
+                    using (StreamWriter writer = new StreamWriter(ConfigurationManager.AppSettings["RefBookFilePath"]))
+                    {
+                        writer.WriteLine("Id,HexId,Name");
+                    }
+                }
+                else
+                {
+                    Environment.Exit(0);
+                }
+                //var createRefBookDialog = new CreateRefBookDialog();
+                //createRefBookDialog.ShowDialog();
+            }
             var response = await _refBookService.GetAllPositionsAsync();
             if(response.StatusCode!=Enums.StatusCode.OK)
             {

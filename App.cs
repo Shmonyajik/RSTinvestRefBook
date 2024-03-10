@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 
 namespace RSTinvestRefBook
@@ -15,28 +9,32 @@ namespace RSTinvestRefBook
 
         public App(MainWindow mainWindow)
         {
-            Console.WriteLine("Запустилось!");
-            var regexPattern = ConfigurationManager.AppSettings["HexIdRegexPattern"];
-            var filePath = ConfigurationManager.AppSettings["RefBookFilePath"];
-            if (string.IsNullOrEmpty(regexPattern))
-            {
-                throw new ConfigurationErrorsException("HexIdRegexPattern не найден в файле конфигурации.");
-            }
-            if (string.IsNullOrEmpty(filePath))
-            {
-                throw new ConfigurationErrorsException("RefBookFilePath не найден в файле конфигурации.");
-            }
-            if (!File.Exists(filePath))
-            {
-                throw new FileNotFoundException($"Файл справочника по пути {filePath} не обнаружен.");
-            }
             this.mainWindow = mainWindow;
+            
         }
         protected override void OnStartup(StartupEventArgs e)
         {
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            mainWindow.ShowDialog();
+            
 
-            mainWindow.Show();  
             base.OnStartup(e);
+        }
+        protected override void OnExit(ExitEventArgs e)
+        {
+            AppDomain.CurrentDomain.UnhandledException -= CurrentDomain_UnhandledException;
+
+            base.OnExit(e);
+        }
+
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            Exception exception = e.ExceptionObject as Exception;
+            if (exception != null)
+            {
+                Console.WriteLine("Необработанное исключение:");
+                Console.WriteLine(exception.Message);
+            }
         }
     }
 }

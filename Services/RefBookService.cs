@@ -1,5 +1,4 @@
 ﻿using CsvHelper;
-using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using RSTinvestRefBook.Models;
 using RSTinvestRefBook.Repositories;
 using RSTinvestRefBook.Responses;
@@ -11,8 +10,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows.Documents;
 
 namespace RSTinvestRefBook.Services
 {
@@ -22,38 +19,7 @@ namespace RSTinvestRefBook.Services
         public RefBookService(BaseRepository<Position> positionRepository)
         {
             _positionRepository = positionRepository;
-        }
-        public async Task<BaseResponse<Position>> GetPositionByIdAsync(string id)
-        {
-            var response = new BaseResponse<Position>();
-            try
-            {
-                var position = await _positionRepository.GetByHexIdAsync(id);
-                response.Data = position;
-                response.StatusCode = Enums.StatusCode.OK;
-            }
-            catch (IOException ex)
-            {
-                response.Description = "Произошла ошибка ввода/вывода: " + ex.Message;
-                response.StatusCode = Enums.StatusCode.NotFound;
-            }
-            catch (CsvHelperException ex)
-            {
-                response.Description = "Произошла ошибка при работе с CSV: " + ex.Message;
-                response.StatusCode = Enums.StatusCode.NotFound;
-            }
-            catch (InvalidOperationException ex)
-            {
-                response.Description = ex.Message;
-                response.StatusCode = Enums.StatusCode.NotFound;
-            }
-            catch (Exception ex)
-            {
-                response.Description = ex.Message;
-                response.StatusCode = Enums.StatusCode.InternalServerError;
-            }
-            return response;
-        }
+        }      
 
         public async Task<BaseResponse<IEnumerable<Position>>> GetAllPositionsAsync()
         {
@@ -77,41 +43,6 @@ namespace RSTinvestRefBook.Services
             catch (InvalidOperationException ex)
             {
                 response.Description = ex.Message;
-                response.StatusCode = Enums.StatusCode.NotFound;
-            }
-            catch (Exception ex)
-            {
-                response.Description = ex.Message;
-                response.StatusCode = Enums.StatusCode.InternalServerError;
-            }
-            return response;
-        }
-
-        public BaseResponse<bool> CreatePosition(Position position)
-        {
-            var response = new BaseResponse<bool>();
-            try
-            {
-                
-               var validationErrors = ValidatePosition(position);
-               if(validationErrors.Count>0)
-                {
-                    response.StatusCode = Enums.StatusCode.ValidationError;
-                    response.Description = "Некорректные данные: " + validationErrors.ToString() + ";";
-                    return response;
-                }
-
-                _positionRepository.Create(position);
-                response.StatusCode = Enums.StatusCode.OK;
-            }
-            catch (IOException ex)
-            {
-                response.Description = "Произошла ошибка ввода/вывода: " + ex.Message;
-                response.StatusCode = Enums.StatusCode.NotFound;
-            }
-            catch (CsvHelperException ex)
-            {
-                response.Description = "Произошла ошибка при работе с CSV: " + ex.Message;
                 response.StatusCode = Enums.StatusCode.NotFound;
             }
             catch (Exception ex)
@@ -253,7 +184,7 @@ namespace RSTinvestRefBook.Services
             position.HexId = position.HexId.ToUpper();
             return validationErrors;
         }
-
+        #region OLD
         //private string GenerateHexId()
         //{
         //    int.TryParse(ConfigurationManager.AppSettings.Get("HexIdLength"), out int length);
@@ -270,6 +201,38 @@ namespace RSTinvestRefBook.Services
         //    return builder.ToString();
         //}
 
+        //public async Task<BaseResponse<Position>> GetPositionByIdAsync(string id)
+        //{
+        //    var response = new BaseResponse<Position>();
+        //    try
+        //    {
+        //        var position = await _positionRepository.GetByHexIdAsync(id);
+        //        response.Data = position;
+        //        response.StatusCode = Enums.StatusCode.OK;
+        //    }
+        //    catch (IOException ex)
+        //    {
+        //        response.Description = "Произошла ошибка ввода/вывода: " + ex.Message;
+        //        response.StatusCode = Enums.StatusCode.NotFound;
+        //    }
+        //    catch (CsvHelperException ex)
+        //    {
+        //        response.Description = "Произошла ошибка при работе с CSV: " + ex.Message;
+        //        response.StatusCode = Enums.StatusCode.NotFound;
+        //    }
+        //    catch (InvalidOperationException ex)
+        //    {
+        //        response.Description = ex.Message;
+        //        response.StatusCode = Enums.StatusCode.NotFound;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        response.Description = ex.Message;
+        //        response.StatusCode = Enums.StatusCode.InternalServerError;
+        //    }
+        //    return response;
+        //}
 
+        #endregion
     }
 }

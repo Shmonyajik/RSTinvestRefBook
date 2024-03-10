@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace RSTinvestRefBook.Models
 {
@@ -31,13 +26,6 @@ namespace RSTinvestRefBook.Models
             set { name = value; OnPropertyChanged(nameof(Name)); }
         }
 
-
-        private bool isAcceptance;
-        public bool IsAcceptance
-        {
-            get { return isAcceptance; }
-            set { isAcceptance = value; OnPropertyChanged(nameof(IsAcceptance)); }
-        }
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged(string propertyName)

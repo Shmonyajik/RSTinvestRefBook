@@ -4,10 +4,6 @@ using RSTinvestRefBook.Models;
 using RSTinvestRefBook.Repositories;
 using RSTinvestRefBook.Services;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RSTinvestRefBook
 {
@@ -16,9 +12,7 @@ namespace RSTinvestRefBook
         [STAThread]
         public static void Main()
         {
-            // создаем хост приложения
             var host = Host.CreateDefaultBuilder()
-                // внедряем сервисы
                 .ConfigureServices(services =>
                 {
                     services.AddSingleton<App>();
@@ -27,9 +21,9 @@ namespace RSTinvestRefBook
                     services.AddSingleton<IRefBookService, RefBookService>();
                 })
                 .Build();
-            // получаем сервис - объект класса App
+        
             var app = host.Services.GetService<App>();
-            // запускаем приложения
+           
             app?.Run();
         }
     }
