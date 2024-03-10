@@ -12,8 +12,24 @@ namespace RSTinvestRefBook.Repositories
 {
     public class CSVPositionRepository : BaseRepository<Position>
     {
-        private readonly string FilePath = ConfigurationManager.AppSettings.Get("RefBookFilePath").ToString();
-        public async Task<Position> GetByIdAsync(string id)
+        private readonly string FilePath = ConfigurationManager.AppSettings["RefBookFilePath"];
+
+        //public async Task<Position> GetByIdAsync(string id)
+        //{
+        //    using (var reader = new StreamReader(FilePath))
+        //    using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+        //    {
+        //        while (await csv.ReadAsync())
+        //        {
+        //            var record = csv.GetRecord<Position>();
+        //            if (record.Id == id)
+        //                return record;
+        //        }
+
+        //    }
+        //    throw new InvalidOperationException($"Элемент c id {id} не найден.");
+        //}
+        public async Task<Position> GetByHexIdAsync(string id)
         {
             using (var reader = new StreamReader(FilePath))
             using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
@@ -21,12 +37,12 @@ namespace RSTinvestRefBook.Repositories
                 while (await csv.ReadAsync())
                 {
                     var record = csv.GetRecord<Position>();
-                    if (record.Id == id)
+                    if (record.HexId == id)
                         return record;
                 }
 
             }
-            throw new InvalidOperationException($"Элемент c id {id} не найден.");
+            return null;
         }
 
         public async Task<IEnumerable<Position>> GetAllAsync()
@@ -151,11 +167,5 @@ namespace RSTinvestRefBook.Repositories
             }
         }
 
-        private bool IsFileExists(string filePath)
-        {
-            if (File.Exists(filePath))
-                return true;
-            return false;
-        }
     }
 }

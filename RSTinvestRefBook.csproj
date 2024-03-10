@@ -186,13 +186,14 @@
   <ItemGroup>
     <Compile Include="App.cs" />
     <Compile Include="Enums\StatusCode.cs" />
+    <Compile Include="Models\ShipmentAcceptance.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Repositories\CSVFileRepository.cs" />
     <Compile Include="Repositories\BaseRepository.cs" />
     <Compile Include="Responses\BaseResponse.cs" />
     <Compile Include="Services\IRefBookService.cs" />
     <Compile Include="Services\RefBookService.cs" />
-    <Compile Include="ViewModels\PositionVM.cs" />
+    <Compile Include="ViewModels\MainVM.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

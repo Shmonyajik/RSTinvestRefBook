@@ -10,8 +10,9 @@ namespace RSTinvestRefBook.Services
 {
     public interface IRefBookService
     {
-        Task<BaseResponse<Position>> GetPosition(string id);
-        Task<BaseResponse<IEnumerable<Position>>> GetAllPositions();
-        Task<BaseResponse<bool>> EditPositionsList(List<Position> positions);
+        Task<BaseResponse<Position>> GetPositionByIdAsync(string id);
+        Task<BaseResponse<IEnumerable<Position>>> GetAllPositionsAsync();
+        Task<BaseResponse<bool>> EditPositionsListAsync(List<Position> positions);
+        Task<BaseResponse<IEnumerable<Position>>> GetPositionsByHexIdsAsync(IEnumerable<string> hexIds);
     }
 }

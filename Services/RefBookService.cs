@@ -1,4 +1,5 @@
 ﻿using CsvHelper;
+using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using RSTinvestRefBook.Models;
 using RSTinvestRefBook.Repositories;
 using RSTinvestRefBook.Responses;
@@ -8,7 +9,10 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Documents;
 
 namespace RSTinvestRefBook.Services
 {
@@ -19,14 +23,14 @@ namespace RSTinvestRefBook.Services
         {
             _positionRepository = positionRepository;
         }
-        public async Task<BaseResponse<Position>> GetPosition(string id)
+        public async Task<BaseResponse<Position>> GetPositionByIdAsync(string id)
         {
             var response = new BaseResponse<Position>();
             try
             {
-                var position = await _positionRepository.GetByIdAsync(id);
-                response.StatusCode = Enums.StatusCode.OK;
+                var position = await _positionRepository.GetByHexIdAsync(id);
                 response.Data = position;
+                response.StatusCode = Enums.StatusCode.OK;
             }
             catch (IOException ex)
             {
@@ -51,7 +55,7 @@ namespace RSTinvestRefBook.Services
             return response;
         }
 
-        public async Task<BaseResponse<IEnumerable<Position>>> GetAllPositions()
+        public async Task<BaseResponse<IEnumerable<Position>>> GetAllPositionsAsync()
         {
             var response = new BaseResponse<IEnumerable<Position>>();
             try
@@ -88,13 +92,15 @@ namespace RSTinvestRefBook.Services
             var response = new BaseResponse<bool>();
             try
             {
-               if(string.IsNullOrEmpty(position.Name))
+                
+               var validationErrors = ValidatePosition(position);
+               if(validationErrors.Count>0)
                 {
                     response.StatusCode = Enums.StatusCode.ValidationError;
-                    response.Description = "Имя позиции не может быть пустым.";
+                    response.Description = "Некорректные данные: " + validationErrors.ToString() + ";";
                     return response;
                 }
-                position.Id = GenerateHexId();
+
                 _positionRepository.Create(position);
                 response.StatusCode = Enums.StatusCode.OK;
             }
@@ -116,32 +122,30 @@ namespace RSTinvestRefBook.Services
             return response;
         }
 
-        public async Task<BaseResponse<bool>> EditPositionsList(List<Position> positions)
+        public async Task<BaseResponse<bool>> EditPositionsListAsync(List<Position> positions)
         {
             var response = new BaseResponse<bool>();
             try
             {
-                StringBuilder validationErrors = new StringBuilder();
+                StringBuilder allValidationErrors = new StringBuilder();
                 for (int i = 0; i < positions.Count; i++)
                 {
-                    if (string.IsNullOrEmpty(positions[i].Name))
+                    var validationErrors = ValidatePosition(positions[i]);
+
+                    var positoion = positions.FirstOrDefault(x => x.HexId == positions[i].HexId && x.Id != positions[i].Id);
+                    if(positoion != null)
                     {
-                        response.StatusCode = Enums.StatusCode.ValidationError;
-                        validationErrors.AppendLine($"Строка {i + 1}: Имя позиции не может быть пустым.");
+                        allValidationErrors.AppendLine($"Строка {i + 1}: идентификатор {positions[i].HexId} не уникален;");
                     }
-                    if (positions[i].Quantity < 1)
+                    if(validationErrors.Count > 0)
                     {
+                        allValidationErrors.AppendLine($"Строка {i + 1}: {string.Join(",", validationErrors)};");
                         response.StatusCode = Enums.StatusCode.ValidationError;
-                        validationErrors.AppendLine($"Строка {i + 1}: Количество должно быть больше нуля.");
-                    }
-                    if (string.IsNullOrEmpty(positions[i].Id) && response.StatusCode!= Enums.StatusCode.ValidationError)
-                    {
-                        positions[i].Id = GenerateHexId();
                     }
                 }
-                if(validationErrors.Length > 0)
+                if(allValidationErrors.Length > 0)
                 {
-                    response.Description = validationErrors.ToString();
+                    response.Description = allValidationErrors.ToString();
                     return response;
                 }
 
@@ -168,22 +172,103 @@ namespace RSTinvestRefBook.Services
             return response;
         }
 
-
-        private string GenerateHexId()
+        public async Task<BaseResponse<IEnumerable<Position>>>GetPositionsByHexIdsAsync(IEnumerable<string> hexIds)
         {
-            int.TryParse(ConfigurationManager.AppSettings.Get("HexIdLength"), out int length);
-            // Генерируем случайные байты
-            byte[] buffer = new byte[length / 2];
-            new Random().NextBytes(buffer);
+            var response = new BaseResponse<IEnumerable<Position>>();
+            try
+            { 
+                var positions = new List<Position>();
+                var allValidationErrors = new StringBuilder();
+                foreach (var id in hexIds)
+                {
+                    var position = await _positionRepository.GetByHexIdAsync(id.ToUpper());
+                    
+                    if (position != null)
+                    {
+                        
+                        positions.Add(position);
+                    }
+                    else
+                    {
+                        allValidationErrors.AppendLine($"Идентификатор {id} не найден в справочнике");
+                    }
+                }
+                if(allValidationErrors.Length > 0)
+                {
+                    response.Description = allValidationErrors.ToString();
+                    response.StatusCode = Enums.StatusCode.ValidationError;
+                    return response;
+                }
+                if (positions.Count == 0)
+                {
+                    response.StatusCode = Enums.StatusCode.NotFound;
+                    response.Description = "В справочнике не найдено ни одного введенного HEX идентификатора.";
+                    return response;
+                }
+                response.Data = positions;
+                response.StatusCode = Enums.StatusCode.OK;
 
-            // Преобразуем байты в HEX строку
-            StringBuilder builder = new StringBuilder(length);
-            for (int i = 0; i < buffer.Length; i++)
-            {
-                builder.Append(buffer[i].ToString("X2"));
             }
-            return builder.ToString();
+            catch (IOException ex)
+            {
+                response.Description = "Произошла ошибка ввода/вывода: " + ex.Message;
+                response.StatusCode = Enums.StatusCode.NotFound;
+            }
+            catch (CsvHelperException ex)
+            {
+                response.Description = "Произошла ошибка при работе с CSV: " + ex.Message;
+                response.StatusCode = Enums.StatusCode.NotFound;
+            }
+            catch (InvalidOperationException ex)
+            {
+                response.Description = ex.Message;
+                response.StatusCode = Enums.StatusCode.NotFound;
+            }
+            catch (Exception ex)
+            {
+                response.Description = ex.Message;
+                response.StatusCode = Enums.StatusCode.InternalServerError;
+            }
+            return response;
         }
+        private List<string> ValidatePosition(Position position)
+        {
+            
+            var validationErrors = new List<string>();
+            string regexPattern = ConfigurationManager.AppSettings["HexIdRegexPattern"];//^[0-9A-Fa-f]{24}$
+            if (string.IsNullOrWhiteSpace(regexPattern))
+            {
+                throw new ConfigurationErrorsException("HexIdRegexPattern не найден в файле конфигурации.");
+            }
+            if (string.IsNullOrEmpty(position.Name))
+            {
+                validationErrors.Add("Имя позиции не может быть пустым");
+            }
+            
+            if(string.IsNullOrEmpty(position.HexId) || !Regex.IsMatch(position.HexId.ToUpper(), regexPattern))
+            {
+                
+                validationErrors.Add("HEX идентификатор не соответствует формату");
+            }
+            position.HexId = position.HexId.ToUpper();
+            return validationErrors;
+        }
+
+        //private string GenerateHexId()
+        //{
+        //    int.TryParse(ConfigurationManager.AppSettings.Get("HexIdLength"), out int length);
+        //    // Генерируем случайные байты
+        //    byte[] buffer = new byte[length / 2];
+        //    new Random().NextBytes(buffer);
+
+        //    // Преобразуем байты в HEX строку
+        //    StringBuilder builder = new StringBuilder(length);
+        //    for (int i = 0; i < buffer.Length; i++)
+        //    {
+        //        builder.Append(buffer[i].ToString("X2"));
+        //    }
+        //    return builder.ToString();
+        //}
 
 
     }

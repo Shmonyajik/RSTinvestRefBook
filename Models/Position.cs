@@ -10,12 +10,13 @@ namespace RSTinvestRefBook.Models
 {
     public class Position
     {
-        private string id;
-        public string Id
+        public string Id { get; private set; }
+
+        public Position()
         {
-            get { return id; }
-            set { id = value; OnPropertyChanged(nameof(Id)); }
+            Id = Guid.NewGuid().ToString();
         }
+
         private string hexId;
         public string HexId
         {

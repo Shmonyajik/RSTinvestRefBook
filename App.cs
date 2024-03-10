@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,18 +15,26 @@ namespace RSTinvestRefBook
 
         public App(MainWindow mainWindow)
         {
+            Console.WriteLine("Запустилось!");
+            var regexPattern = ConfigurationManager.AppSettings["HexIdRegexPattern"];
+            var filePath = ConfigurationManager.AppSettings["RefBookFilePath"];
+            if (string.IsNullOrEmpty(regexPattern))
+            {
+                throw new ConfigurationErrorsException("HexIdRegexPattern не найден в файле конфигурации.");
+            }
+            if (string.IsNullOrEmpty(filePath))
+            {
+                throw new ConfigurationErrorsException("RefBookFilePath не найден в файле конфигурации.");
+            }
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException($"Файл справочника по пути {filePath} не обнаружен.");
+            }
             this.mainWindow = mainWindow;
         }
         protected override void OnStartup(StartupEventArgs e)
         {
-            var filePath = System.Configuration.ConfigurationManager.AppSettings.Get("RefBookFilePath").ToString();
-            if (!File.Exists(filePath))
-            {
-                using (StreamWriter sw = File.CreateText(filePath))
-                {
-                    sw.WriteLine("Id,Name,Quantity,IsAcceptance");
-                }
-            }
+
             mainWindow.Show();  
             base.OnStartup(e);
         }
