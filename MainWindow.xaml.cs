@@ -53,7 +53,7 @@ namespace RSTinvestRefBook
         private void DeleteSelectedRecords_Click(object sender, RoutedEventArgs e)
         {
             DataGrid dataGrid = MainTabControl.FindName("RefBookGrid") as DataGrid;
-            if (dataGrid != null)
+            if (dataGrid == null)
             {
                 throw new ArgumentNullException(nameof(dataGrid), "DataGrid не должен быть null.");
             }
@@ -76,6 +76,7 @@ namespace RSTinvestRefBook
         {
             var regexPattern = ConfigurationManager.AppSettings["HexIdRegexPattern"];
             var filePath = ConfigurationManager.AppSettings["RefBookFilePath"];
+            var fullPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, filePath);
             if (string.IsNullOrEmpty(regexPattern))
             {
                 throw new ConfigurationErrorsException("HexIdRegexPattern не найден в файле конфигурации.");
@@ -84,22 +85,26 @@ namespace RSTinvestRefBook
             {
                 throw new ConfigurationErrorsException("RefBookFilePath не найден в файле конфигурации.");
             }
-            if (!File.Exists(filePath))
+            if (!File.Exists(fullPath))
             {
                 MessageBoxResult result = MessageBox.Show("Файл справочника не найден. Создать новый файл?", "RefBook.csv", MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.Yes)
                 {
-                    using (StreamWriter writer = new StreamWriter(ConfigurationManager.AppSettings["RefBookFilePath"]))
+                    string directoryPath = Path.GetDirectoryName(fullPath);
+                    if (!Directory.Exists(directoryPath))
+                    {
+                        Directory.CreateDirectory(directoryPath);
+                    }
+                    using (StreamWriter writer = new StreamWriter(fullPath, true))
                     {
                         writer.WriteLine("Id,HexId,Name");
                     }
+
                 }
                 else
                 {
                     Environment.Exit(0);
                 }
-                //var createRefBookDialog = new CreateRefBookDialog();
-                //createRefBookDialog.ShowDialog();
             }
             var response = await _refBookService.GetAllPositionsAsync();
             if(response.StatusCode!=Enums.StatusCode.OK)
@@ -110,6 +115,22 @@ namespace RSTinvestRefBook
             
             var positions = new ObservableCollection<Position>(response.Data);
             _positionVM.Items = positions;
+        }
+        private void AcceptShipmentGrid_Loaded(object sender, RoutedEventArgs e)
+        {
+            var dataGrid = sender as DataGrid;
+            if (dataGrid == null)
+            {
+                throw new ArgumentNullException(nameof(dataGrid), "DataGrid не должен быть null.");
+            }
+            if (dataGrid.Columns.Count > 0)
+            {
+                double columnWidth = dataGrid.ActualWidth / dataGrid.Columns.Count;
+                foreach (var column in dataGrid.Columns)
+                {
+                    column.Width = new DataGridLength(columnWidth);
+                }
+            }
         }
 
         private async void TextBox_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)

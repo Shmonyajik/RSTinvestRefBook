@@ -36,11 +36,11 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <DataGrid x:Name="AcceptGrid" IsReadOnly="True" Margin="6"  ItemsSource="{Binding Items}" Grid.Row="1" Grid.Column="0">
-
+                    <DataGrid x:Name="AcceptGrid" IsReadOnly="True" Margin="6"  ItemsSource="{Binding Items}" Grid.Row="1" Grid.Column="0" Loaded="AcceptShipmentGrid_Loaded">
+                        
                     </DataGrid>
 
-                    <DataGrid x:Name="ShipmentGrid" IsReadOnly="True" Margin="6" ItemsSource="{Binding Items}"  Grid.Row="1" Grid.Column="1">
+                    <DataGrid x:Name="ShipmentGrid" IsReadOnly="True" Margin="6" ItemsSource="{Binding Items}"  Grid.Row="1" Grid.Column="1" Loaded="AcceptShipmentGrid_Loaded">
 
                     </DataGrid>
                 </Grid>

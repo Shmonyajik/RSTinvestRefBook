@@ -16,9 +16,11 @@ namespace RSTinvestRefBook.Services
     public class RefBookService : IRefBookService
     {
         private readonly BaseRepository<Position> _positionRepository;
-        public RefBookService(BaseRepository<Position> positionRepository)
+        private readonly IErrorLogger _errorLogger;
+        public RefBookService(BaseRepository<Position> positionRepository, IErrorLogger errorLogger)
         {
             _positionRepository = positionRepository;
+            _errorLogger = errorLogger;
         }      
 
         public async Task<BaseResponse<IEnumerable<Position>>> GetAllPositionsAsync()
@@ -29,26 +31,31 @@ namespace RSTinvestRefBook.Services
                 var positions = await _positionRepository.GetAllAsync();
                 response.Data = positions;
                 response.StatusCode = Enums.StatusCode.OK;
+                
             }
             catch (IOException ex)
             {
                 response.Description = "Произошла ошибка ввода/вывода: " + ex.Message;
                 response.StatusCode = Enums.StatusCode.NotFound;
+                _errorLogger.LogError(ex);
             }
             catch (CsvHelperException ex)
             {
                 response.Description = "Произошла ошибка при работе с CSV: " + ex.Message;
                 response.StatusCode = Enums.StatusCode.NotFound;
+                _errorLogger.LogError(ex);
             }
             catch (InvalidOperationException ex)
             {
                 response.Description = ex.Message;
                 response.StatusCode = Enums.StatusCode.NotFound;
+                _errorLogger.LogError(ex);
             }
             catch (Exception ex)
             {
                 response.Description = ex.Message;
                 response.StatusCode = Enums.StatusCode.InternalServerError;
+                _errorLogger.LogError(ex);
             }
             return response;
         }
@@ -89,16 +96,19 @@ namespace RSTinvestRefBook.Services
             {
                 response.Description = "Произошла ошибка ввода/вывода: " + ex.Message;
                 response.StatusCode = Enums.StatusCode.NotFound;
+                _errorLogger.LogError(ex);
             }
             catch (CsvHelperException ex)
             {
                 response.Description = "Произошла ошибка при работе с CSV: " + ex.Message;
                 response.StatusCode = Enums.StatusCode.NotFound;
+                _errorLogger.LogError(ex);
             }
             catch (Exception ex)
             {
                 response.Description = ex.Message;
                 response.StatusCode = Enums.StatusCode.InternalServerError;
+                _errorLogger.LogError(ex);
             }
             return response;
         }
@@ -128,6 +138,7 @@ namespace RSTinvestRefBook.Services
                 {
                     response.Description = allValidationErrors.ToString();
                     response.StatusCode = Enums.StatusCode.ValidationError;
+
                     return response;
                 }
                 if (positions.Count == 0)
@@ -144,21 +155,25 @@ namespace RSTinvestRefBook.Services
             {
                 response.Description = "Произошла ошибка ввода/вывода: " + ex.Message;
                 response.StatusCode = Enums.StatusCode.NotFound;
+                _errorLogger.LogError(ex);
             }
             catch (CsvHelperException ex)
             {
                 response.Description = "Произошла ошибка при работе с CSV: " + ex.Message;
                 response.StatusCode = Enums.StatusCode.NotFound;
+                _errorLogger.LogError(ex);
             }
             catch (InvalidOperationException ex)
             {
                 response.Description = ex.Message;
                 response.StatusCode = Enums.StatusCode.NotFound;
+                _errorLogger.LogError(ex);
             }
             catch (Exception ex)
             {
                 response.Description = ex.Message;
                 response.StatusCode = Enums.StatusCode.InternalServerError;
+                _errorLogger.LogError(ex);
             }
             return response;
         }

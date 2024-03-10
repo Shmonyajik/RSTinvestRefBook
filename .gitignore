@@ -33,7 +33,6 @@ paket-files/
 *.exe
 *.pdb
 *.log
-*.config
 
 # Visual Studio Code directories
 .vscode/

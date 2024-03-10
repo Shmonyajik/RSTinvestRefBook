@@ -19,6 +19,7 @@ namespace RSTinvestRefBook
                     services.AddSingleton<MainWindow>();
                     services.AddSingleton<BaseRepository<Position>, CSVPositionRepository>();
                     services.AddSingleton<IRefBookService, RefBookService>();
+                    services.AddSingleton<IErrorLogger,  ErrorLogger>();
                 })
                 .Build();
         

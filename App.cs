@@ -1,4 +1,5 @@
-﻿using System;
+﻿using RSTinvestRefBook.Services;
+using System;
 using System.Windows;
 
 namespace RSTinvestRefBook
@@ -6,10 +7,12 @@ namespace RSTinvestRefBook
     public class App: Application
     {
         readonly MainWindow mainWindow;
+        readonly IErrorLogger errorLogger;
 
-        public App(MainWindow mainWindow)
+        public App(MainWindow mainWindow, IErrorLogger errorLogger)
         {
             this.mainWindow = mainWindow;
+            this.errorLogger = errorLogger;
             
         }
         protected override void OnStartup(StartupEventArgs e)
@@ -32,8 +35,7 @@ namespace RSTinvestRefBook
             Exception exception = e.ExceptionObject as Exception;
             if (exception != null)
             {
-                Console.WriteLine("Необработанное исключение:");
-                Console.WriteLine(exception.Message);
+                errorLogger.LogError(exception);
             }
         }
     }

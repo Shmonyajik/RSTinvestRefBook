@@ -191,6 +191,8 @@
     <Compile Include="Repositories\CSVFileRepository.cs" />
     <Compile Include="Repositories\BaseRepository.cs" />
     <Compile Include="Responses\BaseResponse.cs" />
+    <Compile Include="Services\ErrorLogger.cs" />
+    <Compile Include="Services\IErrorLogger.cs" />
     <Compile Include="Services\IRefBookService.cs" />
     <Compile Include="Services\RefBookService.cs" />
     <Compile Include="ViewModels\MainVM.cs" />
@@ -231,6 +233,5 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
