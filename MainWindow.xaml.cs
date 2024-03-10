@@ -215,5 +215,44 @@ namespace RSTinvestRefBook
             _shipmentVM.Items.Clear();
             _acceptanceVM.Items.Clear();
         }
+
+        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (MainTabControl.SelectedItem is TabItem selectedTab)
+            {
+  
+                if (selectedTab.Header.ToString() == "Positions Moving")
+                {
+                    AcceptTextBox.Visibility = Visibility.Visible;
+                    ShipmentTextBox.Visibility = Visibility.Visible;
+                    ClearBtn.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                
+                    AcceptTextBox.Visibility = Visibility.Collapsed;
+                    ShipmentTextBox.Visibility = Visibility.Collapsed;
+                    ClearBtn.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            if (textBox != null && textBox.Text == "Введите HEX")
+            {
+                textBox.Text = "";
+            }
+        }
+
+        private void TextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            if (textBox != null && string.IsNullOrWhiteSpace(textBox.Text))
+            {
+                textBox.Text = "Введите HEX";
+            }
+        }
     }
 }
